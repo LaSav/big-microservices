@@ -18,21 +18,25 @@ router.post(
   ],
   validateRequest,
   async (req: Request, res: Response) => {
-    const { title, price } = req.body;
+    try {
+      const { title, price } = req.body;
 
-    const ticket = Ticket.build({
-      title,
-      price,
-      userId: req.currentUser!.id,
-    });
-    await ticket.save();
-    await new TicketCreatedPublisher(natsWrapper.client).publish({
-      id: ticket.id,
-      title: ticket.title,
-      price: ticket.price,
-      userId: ticket.userId,
-    });
-    res.status(201).send(ticket);
+      const ticket = Ticket.build({
+        title,
+        price,
+        userId: req.currentUser!.id,
+      });
+      await ticket.save();
+      await new TicketCreatedPublisher(natsWrapper.client).publish({
+        id: ticket.id,
+        title: ticket.title,
+        price: ticket.price,
+        userId: ticket.userId,
+      });
+      res.status(201).send(ticket);
+    } catch (error) {
+      res.status(500).send({ error: 'Internal Server Error' });
+    }
   }
 );
 
