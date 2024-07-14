@@ -36,7 +36,7 @@ router.delete(
         id: order.ticket.id,
       },
     });
-    res.send({});
+    res.status(204).send(order);
   }
 );
 
